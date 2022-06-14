@@ -3,7 +3,8 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
-#include <iterator>
+#include <chrono>
+
 
 Result::Result(const std::size_t numberOfParameters, const double distMin, const double distMax):
     distMin(distMin), distMax(distMax)
@@ -16,7 +17,7 @@ std::vector<double> Result::generateRandomData(const double distMin, const doubl
     static std::uniform_real_distribution<double> distribution(
         distMin,
         distMax);
-    static std::default_random_engine generator;
+    static std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 
     std::vector<double> data(size);
     std::generate(data.begin(), data.end(), []() { return distribution(generator); });

@@ -1,6 +1,7 @@
 ﻿#include <cmath>
 #include <random>
 #include <vector>
+#include <algorithm>
 
 #include "src/Master.h"
 
@@ -30,6 +31,8 @@ int main()
     const double distMax = 10.0;
     const double precision = 0.05;
 
-    Master master(inputs, outputs, iterations, numberOfParameters, distMin, distMax, precision);
+    const Parameters parameters = { inputs, outputs, iterations, precision };
+
+    Master master(parameters, numberOfParameters, distMin, distMax);
     master.Run<Worker>();
 }

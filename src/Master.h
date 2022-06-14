@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include <thread>
 #include <functional>
@@ -11,21 +10,17 @@
 class Master
 {
 public:
-	Master(const std::vector<double>& inputs, const std::vector<double>& outputs, const std::size_t iterations,
-        const std::size_t numberOfParameters, const double distMin, const double distMax, const double precision);
+	Master(const Parameters& parameters, std::size_t numberOfParameters, double distMin, double distMax);
 
     template<typename Algorithm>
 	void Run();
 
 private:
+    const Parameters& mParameters;
 	unsigned mNumberOfCores;
-    const std::size_t mNumberOfIterations;
-	std::vector<double> mInputs;
-    std::vector<double> mOutputs;
     const std::size_t mNumberOfParameters;
     const double distributionMin;
     const double distributionMax;
-    const double precision;
 	std::mutex standardOutLock;
 };
 
@@ -37,10 +32,7 @@ void Master::Run()
     for (unsigned n = 0; n < mNumberOfCores; n++) {
         at.push_back(std::thread(
                 &Algorithm::Run,
-                std::ref(mInputs),
-                std::ref(mOutputs),
-                mNumberOfIterations,
-                precision,
+                std::ref(mParameters),
                 std::ref(result)));
     }
 

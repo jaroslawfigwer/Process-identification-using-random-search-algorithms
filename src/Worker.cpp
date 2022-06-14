@@ -1,17 +1,13 @@
 #include "Worker.h"
 
 #include <cmath>
-#include <iostream>
 #include <limits>
 
 std::mutex Worker::lock;
 
-void Worker::Run(const std::vector<double>& inputs,
-                 const std::vector<double>& outputs,
-                 const std::size_t numberOfIterations,
-                 const double precision, Result& result)
+void Worker::Run(const Parameters& parameters, Result& result)
 {
-    for (std::size_t i = 0; i < numberOfIterations; ++i)
+    for (std::size_t i = 0; i < parameters.numberOfIterations; ++i)
     {
         if (!result.continueCalculations)
         {
@@ -24,17 +20,17 @@ void Worker::Run(const std::vector<double>& inputs,
             result.parameters.size());
 
         // Calculate output
-        std::vector<double> newOutput(inputs.size());
-        for (std::size_t j = 0; j < inputs.size(); ++j)
+        std::vector<double> newOutput(parameters.inputs.size());
+        for (std::size_t j = 0; j < parameters.inputs.size(); ++j)
         {
-            newOutput[j] = (newParameters[0] + newParameters[1] * inputs[j]) / (newParameters[4] + newParameters[3] * inputs[j] + newParameters[2] * pow(inputs[j], 2));
+            newOutput[j] = (newParameters[0] + newParameters[1] * parameters.inputs[j]) / (newParameters[4] + newParameters[3] * parameters.inputs[j] + newParameters[2] * pow(parameters.inputs[j], 2));
         }
 
         // Calculate cost function
         double newCostFunction = 0;
-        for (std::size_t j = 0; j < outputs.size(); ++j)
+        for (std::size_t j = 0; j < parameters.outputs.size(); ++j)
         {
-            newCostFunction += pow(outputs[j] - newOutput[j], 2);
+            newCostFunction += pow(parameters.outputs[j] - newOutput[j], 2);
         }
 
         {
@@ -44,7 +40,7 @@ void Worker::Run(const std::vector<double>& inputs,
             {
                 result.costFunction = newCostFunction;
                 result.parameters = newParameters;
-                if (result.costFunction < precision)
+                if (result.costFunction < parameters.precision)
                 {
                     result.continueCalculations = false;
                 }
@@ -54,21 +50,21 @@ void Worker::Run(const std::vector<double>& inputs,
         if (hasBetterResult) //Zoom with better precision
         {
             double localCostFunction = 0;
-            SearchForBetterResultAroundPoint(result, newParameters, inputs, newOutput, 
-                localCostFunction, outputs, newCostFunction, 10, 1.0);
+            SearchForBetterResultAroundPoint(result, newParameters, parameters.inputs, newOutput,
+                localCostFunction, parameters.outputs, newCostFunction, 10, 1.0);
 
 
-            SaveResults(precision, result, newParameters, newCostFunction, localCostFunction);
+            SaveResults(parameters.precision, result, newParameters, newCostFunction, localCostFunction);
 
-            SearchForBetterResultAroundPoint(result, newParameters, inputs, newOutput,
-                localCostFunction, outputs, newCostFunction, 10, 0.1);
+            SearchForBetterResultAroundPoint(result, newParameters, parameters.inputs, newOutput,
+                localCostFunction, parameters.outputs, newCostFunction, 10, 0.1);
 
-            SaveResults(precision, result, newParameters, newCostFunction, localCostFunction);
+            SaveResults(parameters.precision, result, newParameters, newCostFunction, localCostFunction);
 
-            SearchForBetterResultAroundPoint(result, newParameters, inputs, newOutput,
-                localCostFunction, outputs, newCostFunction, 10, 0.001);
+            SearchForBetterResultAroundPoint(result, newParameters, parameters.inputs, newOutput,
+                localCostFunction, parameters.outputs, newCostFunction, 10, 0.001);
 
-            SaveResults(precision, result, newParameters, newCostFunction, localCostFunction);
+            SaveResults(parameters.precision, result, newParameters, newCostFunction, localCostFunction);
         }
     }
 }
@@ -79,7 +75,7 @@ void Worker::SaveResults(const double precision,
                          double newCostFunction,
                          double localCostFunction)
  {
-     std::__1::lock_guard<std::mutex> lockGuard(lock);
+     std::lock_guard<std::mutex> lockGuard(lock);
      if (localCostFunction < newCostFunction)
      {
          result.costFunction = newCostFunction;
