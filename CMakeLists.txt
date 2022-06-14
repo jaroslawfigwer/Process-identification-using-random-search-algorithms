@@ -7,9 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(sources ${sources} 
     Example.cpp
-        src/Master.cpp
-        src/Result.cpp
-        src/Worker.cpp
+    src/Master.cpp
+    src/Result.cpp
+    src/Worker.cpp
 )
 
 # add the executable

@@ -7,9 +7,9 @@
 
 struct Result
 {
-	Result(const std::size_t numberOfParameters, const double distMin, const double distMax);
+	Result(std::size_t numberOfParameters, double distMin, double distMax);
 
-	static std::vector<double> generateRandomData(const double distMin, const double distMax, std::size_t size);
+	static std::vector<double> generateRandomData(double distMin, double distMax, std::size_t size);
 
 	double costFunction { std::numeric_limits<double>::max() };
 	std::vector<double> parameters;

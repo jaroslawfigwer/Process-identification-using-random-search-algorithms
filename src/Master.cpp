@@ -3,10 +3,11 @@
 #include <iostream>
 
 
-Master::Master(const std::vector<double>& inputs, const std::vector<double>& outputs, const std::size_t iterations,
-	const std::size_t numberOfParameters, const double distMin, const double distMax, const double precision) :
-		mInputs(inputs), mOutputs(outputs), mNumberOfIterations(iterations), mNumberOfParameters(numberOfParameters),
-		distributionMin(distMin), distributionMax(distMax), precision(precision)
+Master::Master(const Parameters& parameters,
+               const std::size_t numberOfParameters,
+               const double distMin,
+               const double distMax
+): mParameters(parameters), mNumberOfParameters(numberOfParameters), distributionMin(distMin), distributionMax(distMax)
 {
 	mNumberOfCores = std::thread::hardware_concurrency();
 }
